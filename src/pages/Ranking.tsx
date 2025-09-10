@@ -198,6 +198,8 @@ const Ranking = () => {
     { id: "w6", rank: 6, name: "Vikram Yadav", earnings: "₹52,100", icon: Star, color: "text-green-500" },
     { id: "w7", rank: 7, name: "Pooja Singh", earnings: "₹47,600", icon: Star, color: "text-indigo-500" },
     { id: "w8", rank: 8, name: "Manish Gupta", earnings: "₹43,200", icon: Star, color: "text-pink-500" },
+    { id: "w9", rank: 9, name: "Sonia Verma", earnings: "₹39,800", icon: Star, color: "text-teal-500" },
+    { id: "w10", rank: 10, name: "Deepak Jain", earnings: "₹36,500", icon: Star, color: "text-orange-500" },
   ];
 
   const getDefaultDailyUsers = (): RankingUser[] => [
@@ -209,6 +211,8 @@ const Ranking = () => {
     { id: "d6", rank: 6, name: "Rekha Patel", earnings: "₹25,100", icon: Star, color: "text-green-500" },
     { id: "d7", rank: 7, name: "Sanjay Gupta", earnings: "₹22,600", icon: Star, color: "text-indigo-500" },
     { id: "d8", rank: 8, name: "Kavitha Rao", earnings: "₹19,200", icon: Star, color: "text-pink-500" },
+    { id: "d9", rank: 9, name: "Amit Joshi", earnings: "₹16,800", icon: Star, color: "text-teal-500" },
+    { id: "d10", rank: 10, name: "Priya Nair", earnings: "₹14,500", icon: Star, color: "text-orange-500" },
   ];
 
   const RankingDisplay = ({ users, title }: { users: RankingUser[], title: string }) => {
