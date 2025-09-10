@@ -203,6 +203,42 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_rankings: {
+        Row: {
+          created_at: string
+          current_rank: number | null
+          id: string
+          rank_score: number | null
+          total_transactions: number | null
+          total_volume: number | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_rank?: number | null
+          id?: string
+          rank_score?: number | null
+          total_transactions?: number | null
+          total_volume?: number | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_rank?: number | null
+          id?: string
+          rank_score?: number | null
+          total_transactions?: number | null
+          total_volume?: number | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       deposits: {
         Row: {
           admin_notes: string | null
@@ -706,6 +742,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      weekly_rankings: {
+        Row: {
+          created_at: string
+          current_rank: number | null
+          id: string
+          rank_score: number | null
+          total_transactions: number | null
+          total_volume: number | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_rank?: number | null
+          id?: string
+          rank_score?: number | null
+          total_transactions?: number | null
+          total_volume?: number | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_rank?: number | null
+          id?: string
+          rank_score?: number | null
+          total_transactions?: number | null
+          total_volume?: number | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
       }
       withdrawals: {
         Row: {

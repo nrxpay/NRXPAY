@@ -29,74 +29,66 @@ const Ranking = () => {
   const { isAdmin } = useAdminAuth();
   const { toast } = useToast();
   
-  const [allTimeUsers, setAllTimeUsers] = useState<RankingUser[]>([]);
   const [weeklyUsers, setWeeklyUsers] = useState<RankingUser[]>([]);
   const [dailyUsers, setDailyUsers] = useState<RankingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<RankingUser | null>(null);
   const [editForm, setEditForm] = useState({ name: '', earnings: '' });
+  const [activeTab, setActiveTab] = useState('daily');
 
   // Load rankings from database
   useEffect(() => {
     const fetchRankings = async () => {
       setLoading(true);
       try {
-        // Fetch all time rankings
-        const { data: rankingData, error: rankingError } = await supabase
-          .from('user_rankings')
+        // Fetch weekly rankings
+        const { data: weeklyData, error: weeklyError } = await supabase
+          .from('weekly_rankings')
           .select('*')
-          .order('rank_score', { ascending: false });
+          .order('rank_score', { ascending: false })
+          .limit(10);
 
-        if (rankingError) throw rankingError;
+        if (weeklyError) throw weeklyError;
 
-        const { data: userData, error: userError } = await supabase
-          .from('user_data')
-          .select('user_id, username');
+        // Fetch daily rankings
+        const { data: dailyData, error: dailyError } = await supabase
+          .from('daily_rankings')
+          .select('*')
+          .order('rank_score', { ascending: false })
+          .limit(10);
 
-        if (userError) throw userError;
+        if (dailyError) throw dailyError;
 
-        // Create combined rankings with proper usernames
-        const combinedRankings = rankingData.map((ranking, index) => {
-          const userInfo = userData.find(u => u.user_id === ranking.user_id);
-          return {
-            id: ranking.user_id,
-            rank: index + 1,
-            name: ranking.username || userInfo?.username || `User ${ranking.user_id.slice(0, 8)}`,
-            earnings: `₹${ranking.total_volume?.toLocaleString() || '0'}`,
-            icon: index === 0 ? Crown : index === 1 ? Trophy : index === 2 ? Medal : Star,
-            color: index === 0 ? "text-yellow-600" : index === 1 ? "text-gray-500" : index === 2 ? "text-orange-600" : "text-blue-500",
-            medal: index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : undefined
-          };
-        });
+        // Process weekly rankings
+        const processedWeeklyUsers = weeklyData.map((ranking, index) => ({
+          id: ranking.user_id,
+          rank: index + 1,
+          name: ranking.username || `User ${ranking.user_id.slice(0, 8)}`,
+          earnings: `₹${ranking.total_volume?.toLocaleString() || '0'}`,
+          icon: index === 0 ? Crown : index === 1 ? Trophy : index === 2 ? Medal : Star,
+          color: index === 0 ? "text-yellow-600" : index === 1 ? "text-gray-500" : index === 2 ? "text-orange-600" : "text-blue-500",
+          medal: index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : undefined
+        }));
 
-        setAllTimeUsers(combinedRankings);
-        
-        // For weekly rankings, filter by updated_at within last 7 days and limit to 10
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        const weeklyFiltered = combinedRankings
-          .filter(r => rankingData.find(rd => rd.user_id === r.id && new Date(rd.updated_at) >= weekAgo))
-          .slice(0, 10)
-          .map((ranking, index) => ({ ...ranking, rank: index + 1 }));
-        
-        setWeeklyUsers(weeklyFiltered);
-        
-        // For daily rankings, filter by updated_at within last 24 hours and limit to 10
-        const dayAgo = new Date();
-        dayAgo.setDate(dayAgo.getDate() - 1);
-        const dailyFiltered = combinedRankings
-          .filter(r => rankingData.find(rd => rd.user_id === r.id && new Date(rd.updated_at) >= dayAgo))
-          .slice(0, 10)
-          .map((ranking, index) => ({ ...ranking, rank: index + 1 }));
-        
-        setDailyUsers(dailyFiltered);
+        // Process daily rankings
+        const processedDailyUsers = dailyData.map((ranking, index) => ({
+          id: ranking.user_id,
+          rank: index + 1,
+          name: ranking.username || `User ${ranking.user_id.slice(0, 8)}`,
+          earnings: `₹${ranking.total_volume?.toLocaleString() || '0'}`,
+          icon: index === 0 ? Crown : index === 1 ? Trophy : index === 2 ? Medal : Star,
+          color: index === 0 ? "text-yellow-600" : index === 1 ? "text-gray-500" : index === 2 ? "text-orange-600" : "text-blue-500",
+          medal: index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : undefined
+        }));
+
+        setWeeklyUsers(processedWeeklyUsers);
+        setDailyUsers(processedDailyUsers);
         
       } catch (error) {
         console.error('Failed to fetch rankings:', error);
         // Fallback to default data if database fetch fails
-        setAllTimeUsers(getDefaultUsers());
         setWeeklyUsers(getDefaultWeeklyUsers());
-        setDailyUsers(getDefaultUsers());
+        setDailyUsers(getDefaultDailyUsers());
       } finally {
         setLoading(false);
       }
@@ -120,81 +112,27 @@ const Ranking = () => {
     try {
       const earningsAmount = parseFloat(editForm.earnings.replace(/,/g, ''));
       
+      // Update the correct table based on active tab
+      const tableName = activeTab === 'weekly' ? 'weekly_rankings' : 'daily_rankings';
+      
       const { error } = await supabase
-        .from('user_rankings')
+        .from(tableName)
         .update({
           username: editForm.name,
-          total_volume: earningsAmount
+          total_volume: earningsAmount,
+          updated_at: new Date().toISOString()
         })
         .eq('user_id', editingUser.id);
 
       if (error) throw error;
 
-      // Refresh rankings
-      const fetchRankings = async () => {
-        setLoading(true);
-        try {
-          const { data: rankingData, error: rankingError } = await supabase
-            .from('user_rankings')
-            .select('*')
-            .order('rank_score', { ascending: false });
-
-          if (rankingError) throw rankingError;
-
-          const { data: userData, error: userError } = await supabase
-            .from('user_data')
-            .select('user_id, username');
-
-          if (userError) throw userError;
-
-          const combinedRankings = rankingData.map((ranking, index) => {
-            const userInfo = userData.find(u => u.user_id === ranking.user_id);
-            return {
-              id: ranking.user_id,
-              rank: index + 1,
-              name: ranking.username || userInfo?.username || `User ${ranking.user_id.slice(0, 8)}`,
-              earnings: `₹${ranking.total_volume?.toLocaleString() || '0'}`,
-              icon: index === 0 ? Crown : index === 1 ? Trophy : index === 2 ? Medal : Star,
-              color: index === 0 ? "text-yellow-600" : index === 1 ? "text-gray-500" : index === 2 ? "text-orange-600" : "text-blue-500",
-              medal: index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : undefined
-            };
-          });
-
-          setAllTimeUsers(combinedRankings);
-          
-          const weekAgo = new Date();
-          weekAgo.setDate(weekAgo.getDate() - 7);
-          const weeklyFiltered = combinedRankings
-            .filter(r => rankingData.find(rd => rd.user_id === r.id && new Date(rd.updated_at) >= weekAgo))
-            .slice(0, 10)
-            .map((ranking, index) => ({ ...ranking, rank: index + 1 }));
-          
-          setWeeklyUsers(weeklyFiltered);
-          
-          const dayAgo = new Date();
-          dayAgo.setDate(dayAgo.getDate() - 1);
-          const dailyFiltered = combinedRankings
-            .filter(r => rankingData.find(rd => rd.user_id === r.id && new Date(rd.updated_at) >= dayAgo))
-            .slice(0, 10)
-            .map((ranking, index) => ({ ...ranking, rank: index + 1 }));
-          
-          setDailyUsers(dailyFiltered);
-          
-        } catch (error) {
-          console.error('Failed to fetch rankings:', error);
-          setAllTimeUsers(getDefaultUsers());
-          setWeeklyUsers(getDefaultWeeklyUsers());
-          setDailyUsers(getDefaultUsers());
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      await fetchRankings();
+      // Refresh only the relevant ranking
+      await fetchSpecificRankings(activeTab);
+      
       setEditingUser(null);
       toast({
         title: "Success",
-        description: "Ranking updated successfully"
+        description: `${activeTab === 'weekly' ? 'Weekly' : 'Daily'} ranking updated successfully`
       });
     } catch (error) {
       console.error('Error updating ranking:', error);
@@ -203,6 +141,38 @@ const Ranking = () => {
         description: "Failed to update ranking",
         variant: "destructive"
       });
+    }
+  };
+
+  const fetchSpecificRankings = async (type: string) => {
+    try {
+      const tableName = type === 'weekly' ? 'weekly_rankings' : 'daily_rankings';
+      
+      const { data, error } = await supabase
+        .from(tableName)
+        .select('*')
+        .order('rank_score', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+
+      const processedUsers = data.map((ranking, index) => ({
+        id: ranking.user_id,
+        rank: index + 1,
+        name: ranking.username || `User ${ranking.user_id.slice(0, 8)}`,
+        earnings: `₹${ranking.total_volume?.toLocaleString() || '0'}`,
+        icon: index === 0 ? Crown : index === 1 ? Trophy : index === 2 ? Medal : Star,
+        color: index === 0 ? "text-yellow-600" : index === 1 ? "text-gray-500" : index === 2 ? "text-orange-600" : "text-blue-500",
+        medal: index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : undefined
+      }));
+
+      if (type === 'weekly') {
+        setWeeklyUsers(processedUsers);
+      } else {
+        setDailyUsers(processedUsers);
+      }
+    } catch (error) {
+      console.error(`Failed to fetch ${type} rankings:`, error);
     }
   };
 
@@ -228,6 +198,17 @@ const Ranking = () => {
     { id: "w6", rank: 6, name: "Vikram Yadav", earnings: "₹52,100", icon: Star, color: "text-green-500" },
     { id: "w7", rank: 7, name: "Pooja Singh", earnings: "₹47,600", icon: Star, color: "text-indigo-500" },
     { id: "w8", rank: 8, name: "Manish Gupta", earnings: "₹43,200", icon: Star, color: "text-pink-500" },
+  ];
+
+  const getDefaultDailyUsers = (): RankingUser[] => [
+    { id: "d1", rank: 1, name: "Arun Kumar", earnings: "₹45,000", icon: Crown, color: "text-yellow-600", medal: "🥇" },
+    { id: "d2", rank: 2, name: "Sunita Devi", earnings: "₹39,500", icon: Trophy, color: "text-gray-500", medal: "🥈" },
+    { id: "d3", rank: 3, name: "Rahul Sharma", earnings: "₹36,200", icon: Medal, color: "text-orange-600", medal: "🥉" },
+    { id: "d4", rank: 4, name: "Geeta Singh", earnings: "₹32,800", icon: Star, color: "text-blue-500" },
+    { id: "d5", rank: 5, name: "Manoj Yadav", earnings: "₹28,400", icon: Star, color: "text-purple-500" },
+    { id: "d6", rank: 6, name: "Rekha Patel", earnings: "₹25,100", icon: Star, color: "text-green-500" },
+    { id: "d7", rank: 7, name: "Sanjay Gupta", earnings: "₹22,600", icon: Star, color: "text-indigo-500" },
+    { id: "d8", rank: 8, name: "Kavitha Rao", earnings: "₹19,200", icon: Star, color: "text-pink-500" },
   ];
 
   const RankingDisplay = ({ users, title }: { users: RankingUser[], title: string }) => {
@@ -371,25 +352,11 @@ const Ranking = () => {
           )}
         </div>
 
-        <Tabs defaultValue="daily" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="all-time">All Time</TabsTrigger>
+        <Tabs defaultValue="daily" className="w-full" onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="weekly">Weekly</TabsTrigger>
             <TabsTrigger value="daily">Daily</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="all-time" className="space-y-6 mt-6">
-            <RankingDisplay users={allTimeUsers} title="All time" />
-            <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50">
-              <div className="text-center space-y-2">
-                <Trophy className="h-8 w-8 mx-auto text-yellow-500" />
-                <h3 className="font-semibold">Join the Competition!</h3>
-                <p className="text-xs text-muted-foreground">
-                  Start earning and climb the leaderboard to win amazing rewards
-                </p>
-              </div>
-            </Card>
-          </TabsContent>
           
           <TabsContent value="weekly" className="space-y-6 mt-6">
             <RankingDisplay users={weeklyUsers} title="This week" />
@@ -411,7 +378,7 @@ const Ranking = () => {
                 <Medal className="h-8 w-8 mx-auto text-red-500" />
                 <h3 className="font-semibold">Daily Rush!</h3>
                 <p className="text-xs text-muted-foreground">
-                  Make moves today to climb the daily rankings
+                  Compete daily and win instant rewards
                 </p>
               </div>
             </Card>
