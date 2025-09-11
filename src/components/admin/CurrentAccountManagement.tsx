@@ -127,13 +127,20 @@ const CurrentAccountManagement = () => {
   };
 
   const removeRechargePopup = async (accountId: string) => {
+    console.log('Attempting to remove popup for current account:', accountId);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('current_accounts')
         .update({ show_recharge_popup: false })
-        .eq('id', accountId);
+        .eq('id', accountId)
+        .select();
 
-      if (error) throw error;
+      console.log('Current account update result:', { data, error });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
       // Update the local state immediately
       setAccounts(prevAccounts => 
@@ -155,7 +162,7 @@ const CurrentAccountManagement = () => {
       console.error('Error removing recharge popup:', error);
       toast({
         title: "Error",
-        description: "Failed to remove recharge popup",
+        description: `Failed to remove recharge popup: ${error.message}`,
         variant: "destructive"
       });
     }

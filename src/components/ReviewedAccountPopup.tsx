@@ -45,39 +45,38 @@ const ReviewedAccountPopup = ({ isOpen, onClose, accountType }: ReviewedAccountP
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-sm mx-auto animate-fade-in">
-        <AlertDialogHeader className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-          <AlertDialogTitle className="text-center flex items-center justify-center gap-2 pt-4">
-            <CheckCircle className="h-5 w-5 text-green-500" />
-            Account Reviewed
+      <AlertDialogContent className="max-w-md mx-auto animate-fade-in border-0 shadow-2xl">
+        <AlertDialogHeader className="text-center pb-4">
+          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 animate-bounce">
+            <CheckCircle className="h-8 w-8 text-green-600" />
+          </div>
+          <AlertDialogTitle className="text-xl font-bold text-gray-900">
+            Account Approved ✅
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-center space-y-4">
-            <p className="text-base font-medium text-green-600">
-              Your account has been reviewed and is eligible for otp work
-            </p>
-            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm font-medium text-yellow-800">
-                {getAccountDisplayName()} account requires recharge to be done before it can start working
+          <AlertDialogDescription className="text-center space-y-4 pt-2">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 animate-pulse">
+              <p className="text-sm font-medium text-amber-800">
+                Complete recharge to activate
               </p>
-              <p className="text-2xl font-bold text-primary mt-2">{getRechargeAmount()}</p>
+              <p className="text-2xl font-bold text-amber-700 mt-2">{getRechargeAmount()}</p>
             </div>
-            <div className="text-xs text-muted-foreground">
-              <p>The deposit is 100% refundable and can be withdrawn anytime</p>
-            </div>
+            <p className="text-xs text-gray-600">
+              Contact support on Telegram after recharge completion
+            </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogAction onClick={handleRecharge} className="w-full">
-            Proceed to Recharge
+        <AlertDialogFooter className="flex flex-col gap-2 pt-0">
+          <AlertDialogAction onClick={handleRecharge} className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 transform transition-all duration-200 hover:scale-105">
+            Recharge Now
           </AlertDialogAction>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => { onClose(); navigate("/support-guide"); }} className="flex-1 py-2 hover:scale-105 transition-transform">
+              Support
+            </Button>
+            <Button variant="ghost" onClick={onClose} className="flex-1 py-2 hover:scale-105 transition-transform">
+              Later
+            </Button>
+          </div>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

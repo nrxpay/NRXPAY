@@ -130,13 +130,20 @@ export function CorporateAccountManagement() {
   };
 
   const removeRechargePopup = async (accountId: string) => {
+    console.log('Attempting to remove popup for corporate account:', accountId);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('corporate_accounts')
         .update({ show_recharge_popup: false })
-        .eq('id', accountId);
+        .eq('id', accountId)
+        .select();
 
-      if (error) throw error;
+      console.log('Corporate account update result:', { data, error });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
       // Update the local state immediately
       setAccounts(prevAccounts => 
@@ -158,7 +165,7 @@ export function CorporateAccountManagement() {
       console.error('Error removing recharge popup:', error);
       toast({
         title: "Error",
-        description: "Failed to remove recharge popup",
+        description: `Failed to remove recharge popup: ${error.message}`,
         variant: "destructive"
       });
     }
