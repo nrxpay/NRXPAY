@@ -150,14 +150,14 @@ const SavingsAccountManagement = () => {
         description: "Recharge popup removed for user",
       });
 
-      // Also refresh from database
-      await fetchSavingsAccounts();
+      // Refresh from database to ensure consistency
+      fetchSavingsAccounts();
     } catch (error) {
       console.error('Error removing recharge popup:', error);
       toast({
         title: "Error",
         description: "Failed to remove recharge popup",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };

@@ -152,9 +152,10 @@ export function CorporateAccountManagement() {
         description: "Recharge popup removed for user"
       });
 
-      // Also refresh from database
-      await fetchCorporateAccounts();
+      // Refresh from database to ensure consistency  
+      fetchCorporateAccounts();
     } catch (error) {
+      console.error('Error removing recharge popup:', error);
       toast({
         title: "Error",
         description: "Failed to remove recharge popup",

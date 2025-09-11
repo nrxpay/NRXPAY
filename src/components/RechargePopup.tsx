@@ -69,35 +69,38 @@ const RechargePopup = ({ isOpen, onClose, accountType }: RechargePopupProps) => 
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-sm mx-auto animate-fade-in">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-center flex items-center justify-center gap-2">
-            <Lock className="h-5 w-5 text-green-600" />
-            Account Status
+      <AlertDialogContent className="max-w-md mx-auto animate-fade-in border-0 shadow-2xl">
+        <AlertDialogHeader className="text-center pb-4">
+          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <Lock className="h-8 w-8 text-green-600" />
+          </div>
+          <AlertDialogTitle className="text-xl font-bold text-gray-900">
+            Account Approved ✅
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-center space-y-3">
-            <p className="text-base font-medium text-green-700">
-              Request has been approved. But minimum recharge has not been completed. Please continue to recharge and if completed contact support on telegram to start running
-            </p>
-            <p className="text-base font-medium">
-              You must recharge {getRechargeAmount()} to activate your {getAccountDisplayName()} account
-            </p>
-            <p className="text-2xl font-bold text-primary">{getRechargeAmount()}</p>
-            <div className="text-sm text-muted-foreground">
-              <p>The deposit is 100% refundable and can be withdrawed anytime</p>
+          <AlertDialogDescription className="text-center space-y-4 pt-2">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <p className="text-sm font-medium text-amber-800">
+                Complete recharge to activate
+              </p>
+              <p className="text-2xl font-bold text-amber-700 mt-2">{getRechargeAmount()}</p>
             </div>
+            <p className="text-xs text-gray-600">
+              Contact support on Telegram after recharge completion
+            </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="flex flex-col gap-3 sm:gap-2">
-          <AlertDialogAction onClick={handleRecharge} className="w-full text-white font-semibold py-3 sm:py-2">
+        <AlertDialogFooter className="flex flex-col gap-2 pt-0">
+          <AlertDialogAction onClick={handleRecharge} className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3">
             Recharge Now
           </AlertDialogAction>
-          <Button variant="outline" onClick={handleSupport} className="w-full py-3 sm:py-2 font-medium">
-            Contact Support
-          </Button>
-          <Button variant="secondary" onClick={handleCancel} className="w-full py-3 sm:py-2 font-medium">
-            Cancel
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleSupport} className="flex-1 py-2">
+              Support
+            </Button>
+            <Button variant="ghost" onClick={handleCancel} className="flex-1 py-2">
+              Later
+            </Button>
+          </div>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

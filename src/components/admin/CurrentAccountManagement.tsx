@@ -149,14 +149,14 @@ const CurrentAccountManagement = () => {
         description: "Recharge popup removed for user",
       });
 
-      // Also refresh from database
-      await fetchCurrentAccounts();
+      // Refresh from database to ensure consistency
+      fetchCurrentAccounts();
     } catch (error) {
       console.error('Error removing recharge popup:', error);
       toast({
         title: "Error",
         description: "Failed to remove recharge popup",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
