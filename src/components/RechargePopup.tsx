@@ -77,7 +77,7 @@ const RechargePopup = ({ isOpen, onClose, accountType }: RechargePopupProps) => 
           </AlertDialogTitle>
           <AlertDialogDescription className="text-center space-y-3">
             <p className="text-base font-medium text-green-700">
-              🎉 Your account has been approved but is inactive because minimum recharge has not been completed.
+              Request has been approved. But minimum recharge has not been completed. Please continue to recharge and if completed contact support on telegram to start running
             </p>
             <p className="text-base font-medium">
               You must recharge {getRechargeAmount()} to activate your {getAccountDisplayName()} account
