@@ -27,11 +27,12 @@ const SavingsAccount = () => {
     if (savingsAccounts.length > 0) {
       const approvedAccount = savingsAccounts.find(account => account.status === 'approved');
       if (approvedAccount) {
-        // Only show recharge popup if explicitly flagged
+        // Show or hide recharge popup based on database flag
         if (approvedAccount.show_recharge_popup) {
           setShowRechargePopup(true);
+        } else {
+          setShowRechargePopup(false);
         }
-        // Don't automatically show insufficient popup - only when explicitly needed
       }
     }
   }, [savingsAccounts]);
