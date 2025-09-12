@@ -27,13 +27,11 @@ const CorporateAccount = () => {
     if (corporateAccounts.length > 0) {
       const approvedAccount = corporateAccounts.find(account => account.status === 'approved');
       if (approvedAccount) {
-        // Check if user needs to see recharge popup
+        // Only show recharge popup if explicitly flagged
         if (approvedAccount.show_recharge_popup) {
           setShowRechargePopup(true);
-        } else {
-          // Show insufficient recharge message if approved but no popup flag
-          setShowInsufficientMessage(true);
         }
+        // Don't automatically show insufficient popup - only when explicitly needed
       }
     }
   }, [corporateAccounts]);
