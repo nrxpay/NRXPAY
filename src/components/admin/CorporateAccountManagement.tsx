@@ -131,7 +131,23 @@ export function CorporateAccountManagement() {
 
   const removeRechargePopup = async (accountId: string) => {
     console.log('Attempting to remove popup for corporate account:', accountId);
+    
     try {
+      // First verify the account exists
+      const { data: existingAccount, error: checkError } = await supabase
+        .from('corporate_accounts')
+        .select('id, show_recharge_popup, user_id')
+        .eq('id', accountId)
+        .single();
+
+      if (checkError) {
+        console.error('Error checking account:', checkError);
+        throw new Error('Account not found');
+      }
+
+      console.log('Found corporate account:', existingAccount);
+
+      // Update the popup flag
       const { data, error } = await supabase
         .from('corporate_accounts')
         .update({ show_recharge_popup: false })
@@ -145,19 +161,25 @@ export function CorporateAccountManagement() {
         throw error;
       }
 
-      // Update the local state immediately
-      setAccounts(prevAccounts => 
-        prevAccounts.map(acc => 
-          acc.id === accountId 
-            ? { ...acc, show_recharge_popup: false }
-            : acc
-        )
-      );
+      if (data && data.length > 0) {
+        // Update the local state immediately
+        setAccounts(prevAccounts => 
+          prevAccounts.map(acc => 
+            acc.id === accountId 
+              ? { ...acc, show_recharge_popup: false }
+              : acc
+          )
+        );
 
-      toast({
-        title: "Success",
-        description: "Recharge popup removed for user"
-      });
+        toast({
+          title: "Success",
+          description: "Recharge popup removed for user"
+        });
+
+        console.log('Successfully removed popup for corporate account:', accountId);
+      } else {
+        throw new Error('No account was updated');
+      }
 
       // Refresh from database to ensure consistency  
       fetchCorporateAccounts();

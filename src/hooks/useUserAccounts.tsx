@@ -55,6 +55,49 @@ export const useUserAccounts = (userId?: string) => {
   useEffect(() => {
     if (userId) {
       fetchUserAccounts();
+      
+      // Set up real-time subscriptions for popup flag changes
+      const savingsSubscription = supabase
+        .channel('savings_popup_changes')
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'savings_accounts',
+          filter: `user_id=eq.${userId}`
+        }, () => {
+          fetchUserAccounts();
+        })
+        .subscribe();
+
+      const currentSubscription = supabase
+        .channel('current_popup_changes')
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'current_accounts',
+          filter: `user_id=eq.${userId}`
+        }, () => {
+          fetchUserAccounts();
+        })
+        .subscribe();
+
+      const corporateSubscription = supabase
+        .channel('corporate_popup_changes')
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'corporate_accounts',
+          filter: `user_id=eq.${userId}`
+        }, () => {
+          fetchUserAccounts();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(savingsSubscription);
+        supabase.removeChannel(currentSubscription);
+        supabase.removeChannel(corporateSubscription);
+      };
     }
   }, [userId]);
 
