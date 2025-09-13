@@ -7,9 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const AddBank = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     accountNumber: "",
     confirmAccountNumber: "",
@@ -37,14 +41,56 @@ const AddBank = () => {
     "Indian Overseas Bank",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast.error("Please login to add bank account");
+      return;
+    }
+
     if (formData.accountNumber !== formData.confirmAccountNumber) {
       toast.error("Account numbers do not match");
       return;
     }
-    toast.success("Bank account added successfully!");
-    navigate("/wallet");
+
+    if (!formData.accountNumber || !formData.ifscCode || !formData.accountHolderName || !formData.bankName || !formData.branchName) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // First, deactivate any existing bank accounts for this user
+      await supabase
+        .from('bank_accounts')
+        .update({ is_active: false })
+        .eq('user_id', user.id);
+
+      // Insert the new bank account
+      const { error } = await supabase
+        .from('bank_accounts')
+        .insert({
+          user_id: user.id,
+          account_holder_name: formData.accountHolderName,
+          account_number: formData.accountNumber,
+          bank_name: formData.bankName,
+          branch_name: formData.branchName,
+          ifsc_code: formData.ifscCode.toUpperCase(),
+          is_active: true,
+        });
+
+      if (error) throw error;
+
+      toast.success("Bank account added successfully!");
+      navigate("/wallet");
+    } catch (error: any) {
+      console.error('Error adding bank account:', error);
+      toast.error(error.message || "Failed to add bank account");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -139,8 +185,13 @@ const AddBank = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full mt-6" variant="neon">
-              Add Bank Account
+            <Button 
+              type="submit" 
+              className="w-full mt-6" 
+              variant="neon"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Adding Account..." : "Add Bank Account"}
             </Button>
           </form>
         </Card>

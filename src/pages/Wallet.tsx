@@ -10,14 +10,16 @@ import WithdrawHistory from "@/components/WithdrawHistory";
 import WithdrawForm from "@/components/WithdrawForm";
 import { useUserBalance } from "@/hooks/useUserBalance";
 import { useUSDTRates } from "@/hooks/useUSDTRates";
+import { useUserBankAccounts } from "@/hooks/useUserBankAccounts";
 const Wallet = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("deposit");
   const [showWithdrawForm, setShowWithdrawForm] = useState(false);
   
-  // Use custom hooks for balance and rates
+  // Use custom hooks for balance, rates, and bank accounts
   const { balance, loading: balanceLoading } = useUserBalance();
   const { rates, loading: ratesLoading } = useUSDTRates();
+  const { bankAccounts, loading: bankLoading } = useUserBankAccounts();
   
   // Calculate USDT balance in INR using sell rate
   const usdtInINR = rates && balance ? balance.usdt_balance * rates.sell_rate : 0;
@@ -61,13 +63,40 @@ const Wallet = () => {
           )}
         </Card>
 
+        {/* Bank Account Details */}
+        <Card className="p-4">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Bank Account Details</h3>
+          {bankLoading ? (
+            <p className="text-sm text-muted-foreground">Loading bank details...</p>
+          ) : bankAccounts.length > 0 ? (
+            <div className="space-y-2">
+              {bankAccounts.map((account, index) => (
+                <div key={`${account.user_id}-${index}`} className="bg-muted/50 p-3 rounded-lg">
+                  <p className="font-medium text-foreground">{account.account_holder_name}</p>
+                  <p className="text-sm text-muted-foreground">{account.bank_name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    ****{account.account_number.slice(-4)} • {account.ifsc_code}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{account.branch_name}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No bank account added yet</p>
+          )}
+        </Card>
+
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline-neon" className="h-12" onClick={() => navigate("/add-bank")}>
-            Add Bank
+          <Button 
+            variant="outline-neon" 
+            className="h-12" 
+            onClick={() => navigate(bankAccounts.length > 0 ? "/change-bank" : "/add-bank")}
+          >
+            {bankAccounts.length > 0 ? "Change Bank" : "Add Bank"}
           </Button>
           <Button variant="outline-neon" className="h-12" onClick={() => navigate("/security-pin?target=change-bank")}>
-            Change Bank
+            Security PIN
           </Button>
         </div>
 
