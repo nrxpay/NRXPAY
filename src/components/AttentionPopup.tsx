@@ -35,15 +35,9 @@ const AttentionPopup = ({ isOpen, onClose, usdtRate }: AttentionPopupProps) => {
               Upload bank accounts manually only on NRX PAY
             </p>
             
-            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg space-y-2">
-              <p className="text-sm font-medium text-yellow-800">
-                • Savings requires minimal <span className="font-bold">$200</span> recharge
-              </p>
-              <p className="text-sm font-medium text-yellow-800">
-                • Current requires minimal <span className="font-bold">$500</span> recharge
-              </p>
-              <p className="text-sm font-medium text-yellow-800">
-                • Corporate requires minimal <span className="font-bold">$2000</span> recharge
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm font-medium text-red-800">
+                Contact Telegram support to run Corporate and Current accounts . Timepass = Direct Block
               </p>
             </div>
             
