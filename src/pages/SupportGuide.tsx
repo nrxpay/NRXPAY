@@ -49,11 +49,18 @@ const SupportGuide = () => {
             </div>
             
             <div className="p-4 bg-orange-50 rounded-lg">
-              <h3 className="font-semibold text-orange-800 mb-2">🚀 Telegram Support</h3>
-              <p className="text-sm text-orange-700">Message - @NRXPAYSUPPORT ( Official )
-
-
-Please use English to communicate and Hindi users must use Phone/In App-Support for help.</p>
+              <h3 className="font-semibold text-orange-800 mb-3 flex items-center">
+                <MessageCircle className="w-5 h-5 mr-2" />
+                🚀 Telegram Support
+              </h3>
+              <p className="text-sm text-orange-700 mb-3">Get instant help through our official Telegram support.</p>
+              <Button
+                onClick={() => window.open('https://t.me/NRXPAYSUPPORT', '_blank')}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white mb-2"
+              >
+                Contact @NRXPAYSUPPORT
+              </Button>
+              <p className="text-xs text-orange-600">Please use English to communicate and Hindi users must use Phone/In App-Support for help.</p>
             </div>
           </div>
           

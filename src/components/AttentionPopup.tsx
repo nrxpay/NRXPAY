@@ -36,14 +36,13 @@ const AttentionPopup = ({ isOpen, onClose, usdtRate }: AttentionPopupProps) => {
             </p>
             
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm font-medium text-red-800">
-                Contact Telegram support to run Corporate and Current accounts . Timepass = Direct Block
-              </p>
+              <Button
+                onClick={() => window.open('https://t.me/NRXPAYSUPPORT', '_blank')}
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
+              >
+                Contact Telegram Support
+              </Button>
             </div>
-            
-            <p className="text-sm font-medium text-green-600">
-              This is not security deposit, it can be withdrawn anytime
-            </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
       </AlertDialogContent>
