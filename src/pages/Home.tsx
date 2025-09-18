@@ -15,9 +15,17 @@ const Home = () => {
   const [showAttentionPopup, setShowAttentionPopup] = useState(false);
 
   useEffect(() => {
-    // Show popup when component mounts (user comes to home screen)
-    setShowAttentionPopup(true);
+    // Show popup only once per user session
+    const hasSeenPopup = localStorage.getItem('hasSeenAttentionPopup');
+    if (!hasSeenPopup) {
+      setShowAttentionPopup(true);
+    }
   }, []);
+
+  const handleClosePopup = () => {
+    setShowAttentionPopup(false);
+    localStorage.setItem('hasSeenAttentionPopup', 'true');
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20 max-w-md mx-auto">
@@ -170,7 +178,7 @@ const Home = () => {
 
       <AttentionPopup 
         isOpen={showAttentionPopup}
-        onClose={() => setShowAttentionPopup(false)}
+        onClose={handleClosePopup}
         usdtRate={rates?.buy_rate || 99}
       />
 
