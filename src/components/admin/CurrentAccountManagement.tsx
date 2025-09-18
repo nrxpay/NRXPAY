@@ -101,94 +101,6 @@ const CurrentAccountManagement = () => {
     }
   };
 
-  const triggerRechargePopup = async (accountId: string) => {
-    try {
-      const { error } = await supabase
-        .from('current_accounts')
-        .update({ show_recharge_popup: true })
-        .eq('id', accountId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "User will see recharge popup on next login",
-      });
-
-      fetchCurrentAccounts();
-    } catch (error) {
-      console.error('Error triggering recharge popup:', error);
-      toast({
-        title: "Error",
-        description: "Failed to trigger recharge popup",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const removeRechargePopup = async (accountId: string) => {
-    console.log('Attempting to remove popup for current account:', accountId);
-    
-    try {
-      // First verify the account exists
-      const { data: existingAccount, error: checkError } = await supabase
-        .from('current_accounts')
-        .select('id, show_recharge_popup, user_id')
-        .eq('id', accountId)
-        .single();
-
-      if (checkError) {
-        console.error('Error checking account:', checkError);
-        throw new Error('Account not found');
-      }
-
-      console.log('Found current account:', existingAccount);
-
-      // Update the popup flag
-      const { data, error } = await supabase
-        .from('current_accounts')
-        .update({ show_recharge_popup: false })
-        .eq('id', accountId)
-        .select();
-
-      console.log('Current account update result:', { data, error });
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      if (data && data.length > 0) {
-        // Update the local state immediately
-        setAccounts(prevAccounts => 
-          prevAccounts.map(acc => 
-            acc.id === accountId 
-              ? { ...acc, show_recharge_popup: false }
-              : acc
-          )
-        );
-
-        toast({
-          title: "Success",
-          description: "Recharge popup removed for user",
-        });
-
-        console.log('Successfully removed popup for current account:', accountId);
-      } else {
-        throw new Error('No account was updated');
-      }
-
-      // Refresh from database to ensure consistency
-      fetchCurrentAccounts();
-    } catch (error) {
-      console.error('Error removing recharge popup:', error);
-      toast({
-        title: "Error",
-        description: `Failed to remove recharge popup: ${error.message}`,
-        variant: "destructive"
-      });
-    }
-  };
 
   useEffect(() => {
     fetchCurrentAccounts();
@@ -414,26 +326,9 @@ const CurrentAccountManagement = () => {
                             </div>
                           )}
                           {account.status === 'approved' && (
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-lg">
-                                <Clock className="h-5 w-5 text-yellow-600" />
-                                <span className="text-sm font-medium text-yellow-700">Needs Recharge ($700)</span>
-                              </div>
-                              <Button
-                                size="sm"
-                                onClick={() => triggerRechargePopup(account.id)}
-                                className="bg-orange-600 hover:bg-orange-700 text-white"
-                              >
-                                <Clock className="h-4 w-4 mr-1" />
-                                Request Recharge
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => removeRechargePopup(account.id)}
-                              >
-                                Remove Popup
-                              </Button>
+                            <div className="flex items-center gap-2 bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
+                              <CheckCircle className="h-5 w-5 text-green-600" />
+                              <span className="text-sm font-medium text-green-700">Approved</span>
                             </div>
                           )}
                       {/* Ready to run status would be determined by checking user balance */}

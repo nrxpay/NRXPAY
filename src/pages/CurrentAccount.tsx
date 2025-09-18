@@ -1,55 +1,19 @@
-import { ArrowLeft, Lock } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AvailableFunds from "@/components/AvailableFunds";
-import RechargePopup from "@/components/RechargePopup";
-import ReviewedAccountPopup from "@/components/ReviewedAccountPopup";
-import InsufficientRechargePopup from "@/components/InsufficientRechargePopup";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserAccounts } from "@/hooks/useUserAccounts";
 import UserAccountsList from "@/components/UserAccountsList";
-import { supabase } from "@/integrations/supabase/client";
 
 
 const CurrentAccount = () => {
   const navigate = useNavigate();
-  const [showRechargePopup, setShowRechargePopup] = useState(false);
-  const [showReviewedPopup, setShowReviewedPopup] = useState(false);
-  const [showInsufficientPopup, setShowInsufficientPopup] = useState(false);
   const { user } = useAuth();
   const { currentAccounts, loading } = useUserAccounts(user?.id);
   const [showAccountsList, setShowAccountsList] = useState(false);
-
-  // Check if user has approved accounts and show appropriate popup
-  useEffect(() => {
-    if (currentAccounts.length > 0) {
-      const approvedAccount = currentAccounts.find(account => account.status === 'approved');
-      if (approvedAccount) {
-        // Show or hide recharge popup based on database flag
-        if (approvedAccount.show_recharge_popup) {
-          setShowRechargePopup(true);
-        } else {
-          setShowRechargePopup(false);
-        }
-      }
-    }
-  }, [currentAccounts]);
-
-  const handleRechargeClose = async () => {
-    setShowRechargePopup(false);
-    // Reset the popup flag in database
-    if (currentAccounts.length > 0) {
-      const approvedAccount = currentAccounts.find(account => account.status === 'approved' && account.show_recharge_popup);
-      if (approvedAccount) {
-        await supabase
-          .from('current_accounts')
-          .update({ show_recharge_popup: false })
-          .eq('id', approvedAccount.id);
-      }
-    }
-  };
 
   const handleUploadClick = () => {
     if (currentAccounts.length > 0) {
@@ -279,24 +243,6 @@ const CurrentAccount = () => {
           </div>
         </div>
       </main>
-      
-      <RechargePopup 
-        isOpen={showRechargePopup}
-        onClose={handleRechargeClose}
-        accountType="current"
-      />
-      
-      <ReviewedAccountPopup 
-        isOpen={showReviewedPopup}
-        onClose={() => setShowReviewedPopup(false)}
-        accountType="current"
-      />
-      
-      <InsufficientRechargePopup 
-        isOpen={showInsufficientPopup}
-        onClose={() => setShowInsufficientPopup(false)}
-        accountType="current"
-      />
     </div>
   );
 };

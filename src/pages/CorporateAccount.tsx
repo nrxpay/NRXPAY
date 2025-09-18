@@ -1,55 +1,19 @@
-import { ArrowLeft, Lock } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AvailableFunds from "@/components/AvailableFunds";
-import RechargePopup from "@/components/RechargePopup";
-import ReviewedAccountPopup from "@/components/ReviewedAccountPopup";
-import InsufficientRechargeMessage from "@/components/InsufficientRechargeMessage";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserAccounts } from "@/hooks/useUserAccounts";
 import UserAccountsList from "@/components/UserAccountsList";
-import { supabase } from "@/integrations/supabase/client";
 
 
 const CorporateAccount = () => {
   const navigate = useNavigate();
-  const [showRechargePopup, setShowRechargePopup] = useState(false);
-  const [showReviewedPopup, setShowReviewedPopup] = useState(false);
-  const [showInsufficientMessage, setShowInsufficientMessage] = useState(false);
   const { user } = useAuth();
   const { corporateAccounts, loading } = useUserAccounts(user?.id);
   const [showAccountsList, setShowAccountsList] = useState(false);
-
-  // Check if user has approved accounts and show appropriate popup
-  useEffect(() => {
-    if (corporateAccounts.length > 0) {
-      const approvedAccount = corporateAccounts.find(account => account.status === 'approved');
-      if (approvedAccount) {
-        // Show or hide recharge popup based on database flag
-        if (approvedAccount.show_recharge_popup) {
-          setShowRechargePopup(true);
-        } else {
-          setShowRechargePopup(false);
-        }
-      }
-    }
-  }, [corporateAccounts]);
-
-  const handleRechargeClose = async () => {
-    setShowRechargePopup(false);
-    // Reset the popup flag in database
-    if (corporateAccounts.length > 0) {
-      const approvedAccount = corporateAccounts.find(account => account.status === 'approved' && account.show_recharge_popup);
-      if (approvedAccount) {
-        await supabase
-          .from('corporate_accounts')
-          .update({ show_recharge_popup: false })
-          .eq('id', approvedAccount.id);
-      }
-    }
-  };
 
   const handleUploadClick = () => {
     if (corporateAccounts.length > 0) {
@@ -73,30 +37,6 @@ const CorporateAccount = () => {
     );
   }
 
-  // Check if should show insufficient recharge message
-  const approvedAccount = corporateAccounts.find(account => account.status === 'approved');
-  if (showInsufficientMessage && approvedAccount && !approvedAccount.show_recharge_popup) {
-    return (
-      <div className="min-h-screen bg-background max-w-md mx-auto">
-        <header className="bg-white border-b border-border sticky top-0 z-40">
-          <div className="flex items-center h-14 px-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/")}
-              className="mr-2"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-lg font-semibold text-foreground">Corporate Account</h1>
-          </div>
-        </header>
-        <main className="px-4 py-6">
-          <InsufficientRechargeMessage accountType="corporate" />
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto">
@@ -303,18 +243,6 @@ const CorporateAccount = () => {
           </div>
         </div>
       </main>
-      
-      <RechargePopup 
-        isOpen={showRechargePopup}
-        onClose={handleRechargeClose}
-        accountType="corporate"
-      />
-      
-      <ReviewedAccountPopup 
-        isOpen={showReviewedPopup}
-        onClose={() => setShowReviewedPopup(false)}
-        accountType="corporate"
-      />
     </div>
   );
 };
