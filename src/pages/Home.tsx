@@ -35,8 +35,8 @@ const Home = () => {
         {/* Poster Banner */}
         <div className="w-full">
           <img 
-            src="/lovable-uploads/95a33ce9-60ac-4401-8e56-a34bc804b854.png" 
-            alt="NRX PAY Promotion Banner - 1 USDT = 103 INR" 
+            src="/lovable-uploads/banner-106.png" 
+            alt="NRX PAY Promotion Banner - 1 USDT = 106 rs ONLY ON NRX PAY" 
             className="w-full rounded-lg shadow-lg"
           />
         </div>

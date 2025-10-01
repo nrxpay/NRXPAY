@@ -31,6 +31,7 @@ import { RankingManagement } from "./RankingManagement";
 import NotificationSender from "./NotificationSender";
 import TaskManagement from "./TaskManagement";
 import { FundRateManagement } from "./FundRateManagement";
+import MinimumWithdrawalManagement from "./MinimumWithdrawalManagement";
 
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users");
@@ -115,6 +116,15 @@ export function AdminDashboard() {
               </Button>
               
               <Button
+                variant={activeTab === "min-withdrawal" ? "secondary" : "ghost"}
+                onClick={() => setActiveTab("min-withdrawal")}
+                className="w-full justify-start h-12 px-4 hover:bg-gray-50"
+              >
+                <Wallet className="h-5 w-5 mr-3 text-gray-600" />
+                <span className="text-sm font-medium">Minimum Withdrawal</span>
+              </Button>
+              
+              <Button
                 variant={activeTab === "corporate" ? "secondary" : "ghost"}
                 onClick={() => setActiveTab("corporate")}
                 className="w-full justify-start h-12 px-4 hover:bg-gray-50"
@@ -192,11 +202,15 @@ export function AdminDashboard() {
             <USDTRateManagement />
           </TabsContent>
 
-          <TabsContent value="fund-rates">
-            <FundRateManagement />
-          </TabsContent>
+        <TabsContent value="fund-rates">
+          <FundRateManagement />
+        </TabsContent>
 
-          <TabsContent value="corporate">
+        <TabsContent value="min-withdrawal">
+          <MinimumWithdrawalManagement />
+        </TabsContent>
+
+        <TabsContent value="corporate">
             <CorporateAccountManagement />
           </TabsContent>
 

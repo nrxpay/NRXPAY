@@ -361,6 +361,36 @@ export type Database = {
         }
         Relationships: []
       }
+      minimum_withdrawal_config: {
+        Row: {
+          created_at: string
+          created_by: string
+          currency: string
+          id: string
+          is_active: boolean
+          minimum_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          minimum_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          currency?: string
+          id?: string
+          is_active?: boolean
+          minimum_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
