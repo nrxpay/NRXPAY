@@ -298,6 +298,36 @@ export type Database = {
           },
         ]
       }
+      fund_rates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          fund_type: string
+          id: string
+          is_active: boolean
+          rate: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          fund_type: string
+          id?: string
+          is_active?: boolean
+          rate?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          fund_type?: string
+          id?: string
+          is_active?: boolean
+          rate?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       minimum_recharge_config: {
         Row: {
           account_type: string
@@ -788,6 +818,8 @@ export type Database = {
           approved_by: string | null
           bank_account_id: string
           created_at: string
+          fund_rate: number | null
+          fund_type: string | null
           id: string
           status: string
           updated_at: string
@@ -803,6 +835,8 @@ export type Database = {
           approved_by?: string | null
           bank_account_id: string
           created_at?: string
+          fund_rate?: number | null
+          fund_type?: string | null
           id?: string
           status?: string
           updated_at?: string
@@ -818,6 +852,8 @@ export type Database = {
           approved_by?: string | null
           bank_account_id?: string
           created_at?: string
+          fund_rate?: number | null
+          fund_type?: string | null
           id?: string
           status?: string
           updated_at?: string

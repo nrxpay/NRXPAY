@@ -97,26 +97,6 @@ const Home = () => {
           </div>
         </Card>
 
-        {/* Savings Account Section */}
-        <div className="text-sm text-muted-foreground font-medium mb-2">
-          Upload Savings Account
-        </div>
-        <Card 
-          className="p-4 bg-gray-50 cursor-pointer hover:scale-105 transition-transform"
-          onClick={() => navigate("/savings-account")}
-        >
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-              <span className="text-purple-600 text-sm">💰</span>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-foreground">
-                Earn <span className="text-xl text-purple-600 font-extrabold">10K</span> every day!
-              </h3>
-            </div>
-          </div>
-        </Card>
-
         {/* Recharge Button */}
         <Button
           onClick={() => navigate("/recharge")}

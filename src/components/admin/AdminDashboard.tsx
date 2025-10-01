@@ -22,17 +22,15 @@ import {
 import { UserManagement } from "./UserManagement";
 import { TransactionManagement } from "./TransactionManagement";
 import { USDTRateManagement } from "./USDTRateManagement";
-import { MinimumRechargeManagement } from "./MinimumRechargeManagement";
 import { CorporateAccountManagement } from "./CorporateAccountManagement";
-
 import { PinManagement } from "./PinManagement";
 import { DepositManagement } from "./DepositManagement";
 import { WithdrawalManagement } from "./WithdrawalManagement";
-import SavingsAccountManagement from "./SavingsAccountManagement";
 import CurrentAccountManagement from "./CurrentAccountManagement";
 import { RankingManagement } from "./RankingManagement";
 import NotificationSender from "./NotificationSender";
 import TaskManagement from "./TaskManagement";
+import { FundRateManagement } from "./FundRateManagement";
 
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users");
@@ -108,12 +106,12 @@ export function AdminDashboard() {
               </Button>
               
               <Button
-                variant={activeTab === "min-recharge" ? "secondary" : "ghost"}
-                onClick={() => setActiveTab("min-recharge")}
+                variant={activeTab === "fund-rates" ? "secondary" : "ghost"}
+                onClick={() => setActiveTab("fund-rates")}
                 className="w-full justify-start h-12 px-4 hover:bg-gray-50"
               >
                 <DollarSign className="h-5 w-5 mr-3 text-gray-600" />
-                <span className="text-sm font-medium">Minimum Recharge Config</span>
+                <span className="text-sm font-medium">Fund Rate Management</span>
               </Button>
               
               <Button
@@ -123,15 +121,6 @@ export function AdminDashboard() {
               >
                 <Building className="h-5 w-5 mr-3 text-gray-600" />
                 <span className="text-sm font-medium">Corporate Accounts</span>
-              </Button>
-
-              <Button
-                variant={activeTab === "savings" ? "secondary" : "ghost"}
-                onClick={() => setActiveTab("savings")}
-                className="w-full justify-start h-12 px-4 hover:bg-gray-50"
-              >
-                <Wallet className="h-5 w-5 mr-3 text-gray-600" />
-                <span className="text-sm font-medium">Savings Accounts</span>
               </Button>
 
               <Button
@@ -203,16 +192,12 @@ export function AdminDashboard() {
             <USDTRateManagement />
           </TabsContent>
 
-          <TabsContent value="min-recharge">
-            <MinimumRechargeManagement />
+          <TabsContent value="fund-rates">
+            <FundRateManagement />
           </TabsContent>
 
           <TabsContent value="corporate">
             <CorporateAccountManagement />
-          </TabsContent>
-
-          <TabsContent value="savings">
-            <SavingsAccountManagement />
           </TabsContent>
 
           <TabsContent value="current">

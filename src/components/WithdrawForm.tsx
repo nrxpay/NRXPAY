@@ -4,11 +4,13 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUSDTRates } from "@/hooks/useUSDTRates";
+import { useFundRates } from "@/hooks/useFundRates";
 import { toast } from "sonner";
 
 interface BankAccount {
@@ -29,14 +31,17 @@ interface WithdrawFormProps {
 const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
   const { user } = useAuth();
   const { rates } = useUSDTRates();
+  const { rates: fundRates, loading: fundRatesLoading } = useFundRates();
   const [amount, setAmount] = useState("");
   const [selectedBank, setSelectedBank] = useState<string>("");
+  const [selectedFundType, setSelectedFundType] = useState<string>("gaming");
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingBanks, setLoadingBanks] = useState(true);
 
   const usdtAmount = parseFloat(amount) || 0;
-  const inrAmount = usdtAmount * (rates?.sell_rate || 98);
+  const selectedFundRate = fundRates.find(rate => rate.fund_type === selectedFundType);
+  const inrAmount = usdtAmount * (selectedFundRate?.rate || 0);
   const isValidAmount = usdtAmount >= 100;
 
   useEffect(() => {
@@ -95,8 +100,10 @@ const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
           user_id: user.id,
           amount_usdt: usdtAmount,
           amount_inr: inrAmount,
-          bank_account_id: user.id, // Using user_id as bank account reference for now
+          bank_account_id: user.id,
           usdt_rate: rates?.sell_rate || 102,
+          fund_type: selectedFundType,
+          fund_rate: selectedFundRate?.rate || 0,
           status: 'ongoing'
         });
 
@@ -145,6 +152,29 @@ const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
           </div>
 
           <div className="space-y-2">
+            <Label>Select Fund Type</Label>
+            {fundRatesLoading ? (
+              <div className="text-sm text-muted-foreground">Loading fund types...</div>
+            ) : (
+              <RadioGroup value={selectedFundType} onValueChange={setSelectedFundType}>
+                {fundRates.map((fundRate) => (
+                  <div key={fundRate.fund_type} className="flex items-center space-x-2">
+                    <RadioGroupItem value={fundRate.fund_type} id={fundRate.fund_type} />
+                    <Label htmlFor={fundRate.fund_type} className="flex-1 cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <span className="capitalize">{fundRate.fund_type} Fund</span>
+                        <span className="text-sm font-medium text-muted-foreground">
+                          ₹{fundRate.rate}
+                        </span>
+                      </div>
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            )}
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="bank">Select Bank Account</Label>
             {loadingBanks ? (
               <div className="text-sm text-muted-foreground">Loading bank accounts...</div>
@@ -182,7 +212,7 @@ const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
             )}
           </div>
 
-          {usdtAmount > 0 && (
+          {usdtAmount > 0 && selectedFundRate && (
             <Card className="p-4 bg-gray-50">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
@@ -190,8 +220,12 @@ const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
                   <span className="font-medium">${usdtAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>Exchange Rate:</span>
-                  <span className="font-medium">1 USDT = ₹{rates?.sell_rate || 98}</span>
+                  <span>Fund Type:</span>
+                  <span className="font-medium capitalize">{selectedFundType} Fund</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Rate:</span>
+                  <span className="font-medium">₹{selectedFundRate.rate}</span>
                 </div>
                 <div className="flex justify-between font-bold border-t pt-2">
                   <span>INR Amount:</span>
