@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUSDTRates } from "@/hooks/useUSDTRates";
 import { useFundRates } from "@/hooks/useFundRates";
+import { useMinimumWithdrawal } from "@/hooks/useMinimumWithdrawal";
 import { toast } from "sonner";
 
 interface BankAccount {
@@ -32,22 +33,30 @@ const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
   const { user } = useAuth();
   const { rates } = useUSDTRates();
   const { rates: fundRates, loading: fundRatesLoading } = useFundRates();
+  const { config, isLoading: configLoading, getUserConfig } = useMinimumWithdrawal();
   const [amount, setAmount] = useState("");
   const [selectedBank, setSelectedBank] = useState<string>("");
   const [selectedFundType, setSelectedFundType] = useState<string>("gaming");
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingBanks, setLoadingBanks] = useState(true);
+  const [userMinConfig, setUserMinConfig] = useState<any>(null);
 
   const usdtAmount = parseFloat(amount) || 0;
   const selectedFundRate = fundRates.find(rate => rate.fund_type === selectedFundType);
   const inrAmount = usdtAmount * (selectedFundRate?.rate || 0);
-  const isValidAmount = usdtAmount >= 100;
+  const minimumWithdrawal = userMinConfig?.minimum_amount || config?.minimum_amount || 100;
+  const isValidAmount = usdtAmount >= minimumWithdrawal;
 
   useEffect(() => {
-    if (isOpen && user) {
-      fetchBankAccounts();
-    }
+    const loadData = async () => {
+      if (isOpen && user) {
+        fetchBankAccounts();
+        const userConfig = await getUserConfig(user.id);
+        setUserMinConfig(userConfig);
+      }
+    };
+    loadData();
   }, [isOpen, user]);
 
   const fetchBankAccounts = async () => {
@@ -140,14 +149,14 @@ const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
               placeholder="Enter amount in USDT"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              min="100"
+              min={minimumWithdrawal}
               step="0.01"
             />
             <p className="text-xs text-muted-foreground">
-              Minimum withdrawal: $100 USDT
+              Minimum withdrawal: ${minimumWithdrawal} USDT
             </p>
             {!isValidAmount && amount && (
-              <p className="text-xs text-red-500">Minimum amount is $100 USDT</p>
+              <p className="text-xs text-red-500">Minimum amount is ${minimumWithdrawal} USDT</p>
             )}
           </div>
 
