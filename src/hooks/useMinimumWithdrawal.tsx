@@ -12,6 +12,7 @@ export const useMinimumWithdrawal = () => {
         .from("minimum_withdrawal_config")
         .select("*")
         .eq("is_active", true)
+        .is("user_id", null)
         .maybeSingle();
 
       if (error) throw error;
@@ -19,17 +20,38 @@ export const useMinimumWithdrawal = () => {
     },
   });
 
+  const getUserConfig = async (userId?: string) => {
+    if (!userId) return null;
+    
+    const { data, error } = await supabase
+      .from("minimum_withdrawal_config")
+      .select("*")
+      .eq("is_active", true)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  };
+
   const updateConfig = useMutation({
-    mutationFn: async ({ amount, currency }: { amount: number; currency: string }) => {
+    mutationFn: async ({ amount, currency, userId }: { amount: number; currency: string; userId?: string }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       // Check if config exists
-      const { data: existing } = await supabase
+      let query = supabase
         .from("minimum_withdrawal_config")
         .select("id")
-        .eq("is_active", true)
-        .maybeSingle();
+        .eq("is_active", true);
+      
+      if (userId) {
+        query = query.eq("user_id", userId);
+      } else {
+        query = query.is("user_id", null);
+      }
+      
+      const { data: existing } = await query.maybeSingle();
 
       if (existing) {
         // Update existing
@@ -43,7 +65,12 @@ export const useMinimumWithdrawal = () => {
         // Create new
         const { error } = await supabase
           .from("minimum_withdrawal_config")
-          .insert({ minimum_amount: amount, currency, created_by: user.id });
+          .insert({ 
+            minimum_amount: amount, 
+            currency, 
+            created_by: user.id,
+            user_id: userId || null
+          });
 
         if (error) throw error;
       }
@@ -61,6 +88,7 @@ export const useMinimumWithdrawal = () => {
   return {
     config,
     isLoading,
+    getUserConfig,
     updateConfig: updateConfig.mutate,
   };
 };
