@@ -460,6 +460,33 @@ export type Database = {
         }
         Relationships: []
       }
+      recharge_bonus_spins: {
+        Row: {
+          bonus_percentage: number
+          created_at: string
+          has_spun: boolean
+          id: string
+          spun_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bonus_percentage?: number
+          created_at?: string
+          has_spun?: boolean
+          id?: string
+          spun_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bonus_percentage?: number
+          created_at?: string
+          has_spun?: boolean
+          id?: string
+          spun_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       savings_accounts: {
         Row: {
           aadhar_photo_url: string | null

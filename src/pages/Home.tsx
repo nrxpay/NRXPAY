@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Play, ChevronRight } from "lucide-react";
+import { Play, ChevronRight, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -7,12 +7,14 @@ import Header from "@/components/Header";
 import BottomNavigation from "@/components/BottomNavigation";
 import CautionBanner from "@/components/CautionBanner";
 import AttentionPopup from "@/components/AttentionPopup";
+import RechargeSpinWheel from "@/components/RechargeSpinWheel";
 import { useUSDTRates } from "@/hooks/useUSDTRates";
 
 const Home = () => {
   const { rates } = useUSDTRates();
   const navigate = useNavigate();
   const [showAttentionPopup, setShowAttentionPopup] = useState(false);
+  const [showSpinWheel, setShowSpinWheel] = useState(false);
 
   useEffect(() => {
     // Show popup only once per user session
@@ -40,6 +42,24 @@ const Home = () => {
             className="w-full rounded-lg shadow-lg"
           />
         </div>
+
+        {/* Recharge Bonus Spin Wheel */}
+        <Card 
+          className="p-4 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 text-white cursor-pointer hover:scale-105 transition-transform shadow-lg border-0 animate-glow"
+          onClick={() => setShowSpinWheel(true)}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-semibold mb-1 text-white flex items-center gap-2">
+                🎊 Festival Recharge Bonus 🎊
+              </h3>
+              <p className="text-xs text-white/90 font-medium">
+                Spin the wheel & win up to 40% bonus on recharge!
+              </p>
+            </div>
+            <Gift className="h-6 w-6 text-white/90" />
+          </div>
+        </Card>
 
         {/* Tutorial Section */}
         <Card 
@@ -160,6 +180,11 @@ const Home = () => {
         isOpen={showAttentionPopup}
         onClose={handleClosePopup}
         usdtRate={rates?.buy_rate || 99}
+      />
+
+      <RechargeSpinWheel 
+        isOpen={showSpinWheel}
+        onClose={() => setShowSpinWheel(false)}
       />
 
       <BottomNavigation />
