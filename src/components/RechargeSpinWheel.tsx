@@ -161,11 +161,11 @@ const RechargeSpinWheel = ({ isOpen, onClose }: RechargeSpinWheelProps) => {
                     }}
                   >
                     <div
-                      className="absolute font-bold text-white text-xl drop-shadow-lg"
+                      className="absolute font-bold text-white text-lg drop-shadow-lg"
                       style={{
-                        top: "40%",
-                        right: "35%",
-                        transform: `rotate(${22.5}deg)`,
+                        top: "45%",
+                        left: "42%",
+                        transform: `rotate(${22.5}deg) translateX(-50%)`,
                       }}
                     >
                       {prize.percentage}%
