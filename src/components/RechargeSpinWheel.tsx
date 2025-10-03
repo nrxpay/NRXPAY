@@ -150,6 +150,7 @@ const RechargeSpinWheel = ({ isOpen, onClose }: RechargeSpinWheelProps) => {
                   transition: isSpinning ? "transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)" : "none",
                 }}
               >
+                {/* Color segments without text */}
                 {prizes.map((prize, index) => (
                   <div
                     key={index}
@@ -159,22 +160,34 @@ const RechargeSpinWheel = ({ isOpen, onClose }: RechargeSpinWheelProps) => {
                       transform: `rotate(${prize.angle}deg)`,
                       transformOrigin: "center",
                     }}
-                  >
+                  />
+                ))}
+
+                {/* Percentage labels - separate layer on top */}
+                {prizes.map((prize, index) => {
+                  // Calculate position for each label based on angle
+                  const angleRad = ((prize.angle + 22.5) * Math.PI) / 180;
+                  const radius = 110; // Distance from center
+                  const x = 50 + radius * Math.cos(angleRad) / 3.2;
+                  const y = 50 - radius * Math.sin(angleRad) / 3.2;
+                  
+                  return (
                     <div
-                      className="absolute font-bold text-white text-lg drop-shadow-lg"
+                      key={`label-${index}`}
+                      className="absolute font-bold text-white text-xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
                       style={{
-                        top: "45%",
-                        left: "42%",
-                        transform: `rotate(${22.5}deg) translateX(-50%)`,
+                        left: `${x}%`,
+                        top: `${y}%`,
+                        transform: `translate(-50%, -50%) rotate(${prize.angle + 22.5}deg)`,
                       }}
                     >
                       {prize.percentage}%
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
 
                 {/* Center circle */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-600 shadow-xl border-4 border-white flex items-center justify-center">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-600 shadow-xl border-4 border-white flex items-center justify-center z-10">
                   <span className="text-white font-bold text-lg">SPIN</span>
                 </div>
               </div>
