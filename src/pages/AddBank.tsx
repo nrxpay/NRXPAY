@@ -44,7 +44,10 @@ const AddBank = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log("Form submitted, user:", user);
+    
     if (!user) {
+      console.error("No user found");
       toast.error("Please login to add bank account");
       return;
     }
@@ -62,17 +65,32 @@ const AddBank = () => {
     setIsSubmitting(true);
 
     try {
+      console.log("Deactivating existing bank accounts for user:", user.id);
       // First, deactivate any existing bank accounts for this user
-      await supabase
+      const { error: updateError } = await supabase
         .from('bank_accounts')
         .update({ is_active: false })
         .eq('user_id', user.id);
+
+      if (updateError) {
+        console.error('Error deactivating existing accounts:', updateError);
+        throw updateError;
+      }
+
+      console.log("Inserting new bank account");
+      // Get username from user_data table
+      const { data: userData } = await supabase
+        .from('user_data')
+        .select('username')
+        .eq('user_id', user.id)
+        .single();
 
       // Insert the new bank account
       const { error } = await supabase
         .from('bank_accounts')
         .insert({
           user_id: user.id,
+          username: userData?.username || null,
           account_holder_name: formData.accountHolderName,
           account_number: formData.accountNumber,
           bank_name: formData.bankName,
@@ -81,8 +99,12 @@ const AddBank = () => {
           is_active: true,
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error inserting bank account:', error);
+        throw error;
+      }
 
+      console.log("Bank account added successfully");
       toast.success("Bank account added successfully!");
       navigate("/wallet");
     } catch (error: any) {
