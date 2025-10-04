@@ -544,6 +544,39 @@ export type Database = {
         }
         Relationships: []
       }
+      sensitive_data_audit_log: {
+        Row: {
+          accessed_at: string
+          accessed_by: string
+          accessed_record_id: string | null
+          accessed_table: string
+          action_type: string
+          id: string
+          ip_address: string | null
+          user_role: string | null
+        }
+        Insert: {
+          accessed_at?: string
+          accessed_by: string
+          accessed_record_id?: string | null
+          accessed_table: string
+          action_type: string
+          id?: string
+          ip_address?: string | null
+          user_role?: string | null
+        }
+        Update: {
+          accessed_at?: string
+          accessed_by?: string
+          accessed_record_id?: string | null
+          accessed_table?: string
+          action_type?: string
+          id?: string
+          ip_address?: string | null
+          user_role?: string | null
+        }
+        Relationships: []
+      }
       team_stats: {
         Row: {
           created_at: string
