@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUSDTRates } from "@/hooks/useUSDTRates";
 import { useFundRates } from "@/hooks/useFundRates";
 import { useMinimumWithdrawal } from "@/hooks/useMinimumWithdrawal";
+import { useUserBalance } from "@/hooks/useUserBalance";
 import { toast } from "sonner";
 
 interface BankAccount {
@@ -34,6 +35,7 @@ const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
   const { rates } = useUSDTRates();
   const { rates: fundRates, loading: fundRatesLoading } = useFundRates();
   const { config, isLoading: configLoading, getUserConfig } = useMinimumWithdrawal();
+  const { balance } = useUserBalance();
   const [amount, setAmount] = useState("");
   const [selectedBank, setSelectedBank] = useState<string>("");
   const [selectedFundType, setSelectedFundType] = useState<string>("gaming");
@@ -46,7 +48,8 @@ const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
   const selectedFundRate = fundRates.find(rate => rate.fund_type === selectedFundType);
   const inrAmount = usdtAmount * (selectedFundRate?.rate || 0);
   const minimumWithdrawal = userMinConfig?.minimum_amount || config?.minimum_amount || 100;
-  const isValidAmount = usdtAmount >= minimumWithdrawal;
+  const isValidAmount = usdtAmount >= minimumWithdrawal && usdtAmount <= balance.usdt_balance;
+  const hasInsufficientBalance = usdtAmount > balance.usdt_balance;
 
   useEffect(() => {
     const loadData = async () => {
@@ -88,6 +91,11 @@ const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
       return;
     }
     
+    if (hasInsufficientBalance) {
+      toast.error('Insufficient USDT balance');
+      return;
+    }
+
     if (!isValidAmount || !selectedBank) {
       toast.error('Please fill all fields with valid data');
       return;
@@ -153,9 +161,12 @@ const WithdrawForm = ({ isOpen, onClose, onSuccess }: WithdrawFormProps) => {
               step="0.01"
             />
             <p className="text-xs text-muted-foreground">
-              Minimum withdrawal: ${minimumWithdrawal} USDT
+              Minimum withdrawal: ${minimumWithdrawal} USDT | Available: ${balance.usdt_balance.toFixed(2)} USDT
             </p>
-            {!isValidAmount && amount && (
+            {hasInsufficientBalance && amount && (
+              <p className="text-xs text-red-500">Insufficient balance. You have ${balance.usdt_balance.toFixed(2)} USDT</p>
+            )}
+            {!hasInsufficientBalance && !isValidAmount && amount && (
               <p className="text-xs text-red-500">Minimum amount is ${minimumWithdrawal} USDT</p>
             )}
           </div>
