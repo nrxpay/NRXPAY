@@ -11,8 +11,10 @@ import { useTeamStats } from "@/hooks/useTeamStats";
 
 const Team = () => {
   const { teamStats, loading } = useTeamStats();
-  const [inviteLink] = useState("https://nrxpay.com/invite/NK2024");
+  const [inviteLink] = useState("https://linkly.link/2FCV4");
   const [copied, setCopied] = useState(false);
+  
+  const shareMessage = `Join me on NRXPay and start earning together! 🚀\n\nSign up using my link: ${inviteLink}`;
 
   const copyInviteLink = () => {
     navigator.clipboard.writeText(inviteLink);
@@ -22,10 +24,50 @@ const Team = () => {
   };
 
   const shareOptions = [
-    { icon: Send, label: "Telegram", color: "text-blue-500", action: () => {} },
-    { icon: Facebook, label: "Facebook", color: "text-blue-600", action: () => {} },
-    { icon: MessageCircle, label: "WhatsApp", color: "text-green-500", action: () => {} },
-    { icon: Share2, label: "More", color: "text-gray-600", action: () => {} },
+    { 
+      icon: Send, 
+      label: "Telegram", 
+      color: "text-blue-500", 
+      action: () => {
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(shareMessage)}`, '_blank');
+      }
+    },
+    { 
+      icon: Facebook, 
+      label: "Facebook", 
+      color: "text-blue-600", 
+      action: () => {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteLink)}&quote=${encodeURIComponent(shareMessage)}`, '_blank');
+      }
+    },
+    { 
+      icon: MessageCircle, 
+      label: "WhatsApp", 
+      color: "text-green-500", 
+      action: () => {
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareMessage)}`, '_blank');
+      }
+    },
+    { 
+      icon: Share2, 
+      label: "More", 
+      color: "text-gray-600", 
+      action: async () => {
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Join NRXPay',
+              text: shareMessage,
+              url: inviteLink
+            });
+          } catch (error) {
+            console.log('Share cancelled');
+          }
+        } else {
+          copyInviteLink();
+        }
+      }
+    },
   ];
 
   return (
