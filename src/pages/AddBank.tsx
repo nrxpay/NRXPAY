@@ -77,16 +77,24 @@ const AddBank = () => {
         throw updateError;
       }
 
-      console.log("Inserting new bank account");
+      console.log("Fetching username for user:", user.id);
       // Get username from user_data table
-      const { data: userData } = await supabase
+      const { data: userData, error: userDataError } = await supabase
         .from('user_data')
         .select('username')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
+      if (userDataError) {
+        console.error('Error fetching user data:', userDataError);
+        throw new Error('Failed to fetch user information');
+      }
+
+      console.log("User data fetched:", userData);
+      console.log("Inserting new bank account");
+      
       // Insert the new bank account
-      const { error } = await supabase
+      const { data: insertedData, error: insertError } = await supabase
         .from('bank_accounts')
         .insert({
           user_id: user.id,
@@ -97,16 +105,27 @@ const AddBank = () => {
           branch_name: formData.branchName,
           ifsc_code: formData.ifscCode.toUpperCase(),
           is_active: true,
-        });
+        })
+        .select();
 
-      if (error) {
-        console.error('Error inserting bank account:', error);
-        throw error;
+      if (insertError) {
+        console.error('Error inserting bank account:', insertError);
+        console.error('Insert error details:', JSON.stringify(insertError));
+        throw new Error(insertError.message || 'Failed to add bank account');
       }
 
-      console.log("Bank account added successfully");
+      if (!insertedData || insertedData.length === 0) {
+        console.error('No data returned from insert');
+        throw new Error('Bank account was not created');
+      }
+
+      console.log("Bank account added successfully:", insertedData);
       toast.success("Bank account added successfully!");
-      navigate("/wallet");
+      
+      // Small delay to ensure user sees the success message
+      setTimeout(() => {
+        navigate("/wallet");
+      }, 500);
     } catch (error: any) {
       console.error('Error adding bank account:', error);
       toast.error(error.message || "Failed to add bank account");
