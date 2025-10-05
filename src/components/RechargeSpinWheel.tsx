@@ -11,6 +11,14 @@ interface RechargeSpinWheelProps {
   onClose: () => void;
 }
 
+interface SpinWheelConfig {
+  title: string;
+  body_text: string;
+  percentages: number[];
+  colors: string[];
+  fixed_winning_percentage: number;
+}
+
 const RechargeSpinWheel = ({ isOpen, onClose }: RechargeSpinWheelProps) => {
   const { user } = useAuth();
   const [isSpinning, setIsSpinning] = useState(false);
@@ -18,24 +26,60 @@ const RechargeSpinWheel = ({ isOpen, onClose }: RechargeSpinWheelProps) => {
   const [rotation, setRotation] = useState(0);
   const [wonBonus, setWonBonus] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<SpinWheelConfig>({
+    title: "🎊 Festival Recharge Bonus Spin! 🎊",
+    body_text: "Spin the wheel to win amazing recharge bonuses!",
+    percentages: [20, 5, 10, 1, 15, 30, 25, 40],
+    colors: [
+      "from-yellow-400 to-yellow-600",
+      "from-pink-400 to-pink-600",
+      "from-purple-400 to-purple-600",
+      "from-blue-400 to-blue-600",
+      "from-green-400 to-green-600",
+      "from-red-400 to-red-600",
+      "from-indigo-400 to-indigo-600",
+      "from-orange-400 to-orange-600"
+    ],
+    fixed_winning_percentage: 20
+  });
 
-  // Prize segments - 1% to 40%
-  const prizes = [
-    { percentage: 20, color: "from-yellow-400 to-yellow-600", angle: 0 },
-    { percentage: 5, color: "from-pink-400 to-pink-600", angle: 45 },
-    { percentage: 10, color: "from-purple-400 to-purple-600", angle: 90 },
-    { percentage: 1, color: "from-blue-400 to-blue-600", angle: 135 },
-    { percentage: 15, color: "from-green-400 to-green-600", angle: 180 },
-    { percentage: 30, color: "from-red-400 to-red-600", angle: 225 },
-    { percentage: 25, color: "from-indigo-400 to-indigo-600", angle: 270 },
-    { percentage: 40, color: "from-orange-400 to-orange-600", angle: 315 },
-  ];
+  // Generate prizes from config
+  const prizes = config.percentages.map((percentage, index) => ({
+    percentage,
+    color: config.colors[index] || "from-gray-400 to-gray-600",
+    angle: index * 45
+  }));
 
   useEffect(() => {
     if (isOpen && user) {
+      fetchConfig();
       checkSpinStatus();
     }
   }, [isOpen, user]);
+
+  const fetchConfig = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("spin_wheel_config")
+        .select("*")
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setConfig({
+          title: data.title,
+          body_text: data.body_text,
+          percentages: data.percentages,
+          colors: data.colors,
+          fixed_winning_percentage: data.fixed_winning_percentage
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching config:", error);
+    }
+  };
 
   const checkSpinStatus = async () => {
     if (!user) return;
@@ -68,34 +112,32 @@ const RechargeSpinWheel = ({ isOpen, onClose }: RechargeSpinWheelProps) => {
 
     setIsSpinning(true);
 
-    // Calculate rotation to land on 20% (index 0, angle 0)
-    // Add 5 full spins (1800 degrees) + offset to land on 20%
-    const targetAngle = 0; // 20% is at 0 degrees
-    const spins = 5; // Number of full rotations
+    const winningPercentage = config.fixed_winning_percentage;
+    const winningIndex = config.percentages.indexOf(winningPercentage);
+    const targetAngle = winningIndex * 45;
+    const spins = 5;
     const finalRotation = 360 * spins + targetAngle;
 
     setRotation(finalRotation);
 
-    // Wait for animation to complete
     setTimeout(async () => {
       setIsSpinning(false);
-      setWonBonus(20);
+      setWonBonus(winningPercentage);
       setHasSpun(true);
 
       try {
-        // Record the spin in database
         const { error } = await supabase
           .from("recharge_bonus_spins")
           .upsert({
             user_id: user.id,
-            bonus_percentage: 20,
+            bonus_percentage: winningPercentage,
             has_spun: true,
             spun_at: new Date().toISOString(),
           });
 
         if (error) throw error;
 
-        toast.success(`🎉 Congratulations! You won 20% recharge bonus!`, {
+        toast.success(`🎉 Congratulations! You won ${winningPercentage}% recharge bonus!`, {
           duration: 5000,
         });
       } catch (error) {
@@ -110,7 +152,7 @@ const RechargeSpinWheel = ({ isOpen, onClose }: RechargeSpinWheelProps) => {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
-            🎊 Festival Recharge Bonus Spin! 🎊
+            {config.title}
           </DialogTitle>
         </DialogHeader>
 
@@ -200,7 +242,7 @@ const RechargeSpinWheel = ({ isOpen, onClose }: RechargeSpinWheelProps) => {
                   🎉 You Won {wonBonus}% Bonus! 🎉
                 </p>
                 <p className="text-white/90 text-sm mt-2">
-                  Your next recharge will include this bonus!
+                  {config.body_text}
                 </p>
               </div>
             )}

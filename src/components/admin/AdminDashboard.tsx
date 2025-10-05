@@ -17,7 +17,8 @@ import {
   ArrowUpDown,
   Bell,
   CheckCircle,
-  Wallet
+  Wallet,
+  Sparkles
 } from "lucide-react";
 import { UserManagement } from "./UserManagement";
 import { TransactionManagement } from "./TransactionManagement";
@@ -32,6 +33,7 @@ import NotificationSender from "./NotificationSender";
 import TaskManagement from "./TaskManagement";
 import { FundRateManagement } from "./FundRateManagement";
 import MinimumWithdrawalManagement from "./MinimumWithdrawalManagement";
+import SpinWheelManagement from "./SpinWheelManagement";
 
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users");
@@ -179,6 +181,15 @@ export function AdminDashboard() {
                 <Bell className="h-5 w-5 mr-3 text-gray-600" />
                 <span className="text-sm font-medium">Send Notifications</span>
               </Button>
+              
+              <Button
+                variant={activeTab === "spin-wheel" ? "secondary" : "ghost"}
+                onClick={() => setActiveTab("spin-wheel")}
+                className="w-full justify-start h-12 px-4 hover:bg-gray-50"
+              >
+                <Sparkles className="h-5 w-5 mr-3 text-gray-600" />
+                <span className="text-sm font-medium">Spin Wheel Management</span>
+              </Button>
             </div>
           </Card>
 
@@ -234,6 +245,10 @@ export function AdminDashboard() {
 
           <TabsContent value="notifications">
             <NotificationSender />
+          </TabsContent>
+
+          <TabsContent value="spin-wheel">
+            <SpinWheelManagement />
           </TabsContent>
         </Tabs>
       </div>

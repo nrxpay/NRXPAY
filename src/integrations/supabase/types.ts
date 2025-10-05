@@ -577,6 +577,42 @@ export type Database = {
         }
         Relationships: []
       }
+      spin_wheel_config: {
+        Row: {
+          body_text: string
+          colors: string[]
+          created_at: string
+          fixed_winning_percentage: number
+          id: string
+          is_active: boolean
+          percentages: number[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body_text?: string
+          colors?: string[]
+          created_at?: string
+          fixed_winning_percentage?: number
+          id?: string
+          is_active?: boolean
+          percentages?: number[]
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          body_text?: string
+          colors?: string[]
+          created_at?: string
+          fixed_winning_percentage?: number
+          id?: string
+          is_active?: boolean
+          percentages?: number[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       team_stats: {
         Row: {
           created_at: string
