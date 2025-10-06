@@ -34,6 +34,7 @@ import SpinWheel from "./pages/SpinWheel";
 import EditProfile from "./pages/EditProfile";
 import BonusChecklist from "./pages/BonusChecklist";
 import Admin from "./pages/Admin";
+import CryptoExchange from "./pages/CryptoExchange";
 import NotFound from "./pages/NotFound";
 import SuspendedUserScreen from "./components/SuspendedUserScreen";
 import { useAuth } from "@/hooks/useAuth";
@@ -84,6 +85,7 @@ const AppContent = () => {
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/bonus-checklist" element={<BonusChecklist />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/crypto-exchange" element={<CryptoExchange />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
         </Routes>
