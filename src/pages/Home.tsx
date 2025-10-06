@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Play, ChevronRight, Gift } from "lucide-react";
+import { Play, ChevronRight, Gift, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -8,13 +8,30 @@ import BottomNavigation from "@/components/BottomNavigation";
 import CautionBanner from "@/components/CautionBanner";
 import AttentionPopup from "@/components/AttentionPopup";
 import RechargeSpinWheel from "@/components/RechargeSpinWheel";
+import CryptoExchange from "@/components/CryptoExchange";
 import { useUSDTRates } from "@/hooks/useUSDTRates";
+import { useSpinWheelConfig } from "@/hooks/useSpinWheelConfig";
 
 const Home = () => {
   const { rates } = useUSDTRates();
+  const { config: spinConfig } = useSpinWheelConfig();
   const navigate = useNavigate();
   const [showAttentionPopup, setShowAttentionPopup] = useState(false);
   const [showSpinWheel, setShowSpinWheel] = useState(false);
+  const [showCryptoExchange, setShowCryptoExchange] = useState(false);
+  const [selectedCrypto, setSelectedCrypto] = useState<{ type: string; symbol: string } | null>(null);
+
+  const cryptoOptions = [
+    { type: "bitcoin", symbol: "BTC", icon: "₿", color: "from-orange-400 to-orange-600" },
+    { type: "ethereum", symbol: "ETH", icon: "Ξ", color: "from-blue-400 to-purple-600" },
+    { type: "solana", symbol: "SOL", icon: "◎", color: "from-purple-400 to-pink-600" },
+    { type: "litecoin", symbol: "LTC", icon: "Ł", color: "from-gray-400 to-gray-600" },
+  ];
+
+  const handleCryptoClick = (crypto: { type: string; symbol: string }) => {
+    setSelectedCrypto(crypto);
+    setShowCryptoExchange(true);
+  };
 
   useEffect(() => {
     // Show popup only once per user session
@@ -51,10 +68,10 @@ const Home = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-base font-semibold mb-1 text-white flex items-center gap-2">
-                🎊 Festival Recharge Bonus 🎊
+                {spinConfig?.title || "🎊 Festival Recharge Bonus 🎊"}
               </h3>
               <p className="text-xs text-white/90 font-medium">
-                Spin the wheel & win up to 40% bonus on recharge!
+                {spinConfig?.body_text || "Spin the wheel & win up to 40% bonus on recharge!"}
               </p>
             </div>
             <Gift className="h-6 w-6 text-white/90" />
@@ -76,6 +93,29 @@ const Home = () => {
             <Play className="h-6 w-6 text-white/90" />
           </div>
         </Card>
+
+        {/* Crypto Exchange Section */}
+        <div className="space-y-3 mt-4">
+          <div className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+            <Coins className="h-4 w-4" />
+            Exchange Crypto at Highest Rates
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {cryptoOptions.map((crypto) => (
+              <Card
+                key={crypto.type}
+                className={`p-4 bg-gradient-to-br ${crypto.color} text-white cursor-pointer hover:scale-105 transition-all duration-300 shadow-lg border-0 hover:shadow-xl`}
+                onClick={() => handleCryptoClick(crypto)}
+              >
+                <div className="flex flex-col items-center justify-center space-y-2">
+                  <span className="text-4xl">{crypto.icon}</span>
+                  <h3 className="text-sm font-bold capitalize">{crypto.type}</h3>
+                  <span className="text-xs font-semibold opacity-90">{crypto.symbol}</span>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
 
         {/* Corporate Account Section */}
         <div className="text-sm text-muted-foreground font-medium mb-2">
@@ -186,6 +226,18 @@ const Home = () => {
         isOpen={showSpinWheel}
         onClose={() => setShowSpinWheel(false)}
       />
+
+      {selectedCrypto && (
+        <CryptoExchange
+          isOpen={showCryptoExchange}
+          onClose={() => {
+            setShowCryptoExchange(false);
+            setSelectedCrypto(null);
+          }}
+          cryptoType={selectedCrypto.type}
+          cryptoSymbol={selectedCrypto.symbol}
+        />
+      )}
 
       <BottomNavigation />
     </div>

@@ -146,6 +146,93 @@ export type Database = {
         }
         Relationships: []
       }
+      crypto_rates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          crypto_symbol: string
+          crypto_type: string
+          id: string
+          is_active: boolean
+          rate_inr: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          crypto_symbol: string
+          crypto_type: string
+          id?: string
+          is_active?: boolean
+          rate_inr?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          crypto_symbol?: string
+          crypto_type?: string
+          id?: string
+          is_active?: boolean
+          rate_inr?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crypto_transactions: {
+        Row: {
+          admin_notes: string | null
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          crypto_symbol: string
+          crypto_type: string
+          id: string
+          quantity: number
+          rate_inr: number
+          status: string
+          total_inr: number
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          crypto_symbol: string
+          crypto_type: string
+          id?: string
+          quantity: number
+          rate_inr: number
+          status?: string
+          total_inr: number
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          crypto_symbol?: string
+          crypto_type?: string
+          id?: string
+          quantity?: number
+          rate_inr?: number
+          status?: string
+          total_inr?: number
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       current_accounts: {
         Row: {
           aadhar_photo_url: string | null

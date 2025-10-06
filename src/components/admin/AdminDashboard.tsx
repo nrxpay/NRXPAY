@@ -18,7 +18,8 @@ import {
   Bell,
   CheckCircle,
   Wallet,
-  Sparkles
+  Sparkles,
+  Coins
 } from "lucide-react";
 import { UserManagement } from "./UserManagement";
 import { TransactionManagement } from "./TransactionManagement";
@@ -34,6 +35,7 @@ import TaskManagement from "./TaskManagement";
 import { FundRateManagement } from "./FundRateManagement";
 import MinimumWithdrawalManagement from "./MinimumWithdrawalManagement";
 import SpinWheelManagement from "./SpinWheelManagement";
+import CryptoManagement from "./CryptoManagement";
 
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("users");
@@ -190,6 +192,15 @@ export function AdminDashboard() {
                 <Sparkles className="h-5 w-5 mr-3 text-gray-600" />
                 <span className="text-sm font-medium">Spin Wheel Management</span>
               </Button>
+              
+              <Button
+                variant={activeTab === "crypto" ? "secondary" : "ghost"}
+                onClick={() => setActiveTab("crypto")}
+                className="w-full justify-start h-12 px-4 hover:bg-gray-50"
+              >
+                <Coins className="h-5 w-5 mr-3 text-gray-600" />
+                <span className="text-sm font-medium">Crypto Management</span>
+              </Button>
             </div>
           </Card>
 
@@ -249,6 +260,10 @@ export function AdminDashboard() {
 
           <TabsContent value="spin-wheel">
             <SpinWheelManagement />
+          </TabsContent>
+
+          <TabsContent value="crypto">
+            <CryptoManagement />
           </TabsContent>
         </Tabs>
       </div>
